@@ -1,16 +1,57 @@
-# React + Vite
+# 🌌 GitVerse
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> GitHub visualized as a living space universe.
 
-Currently, two official plugins are available:
+🔗 Live Demo: https://git-verse-nine.vercel.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+GitVerse transforms GitHub profiles into procedural solar systems.
 
-## React Compiler
+- 🌍 Countries → Galaxies
+- ☀️ GitHub Users → Stars / Solar Systems
+- 🪐 Repositories → Planets
+- 🌕 Programming Languages → Moons
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Features
 
-## Expanding the ESLint configuration
+- Cinematic galaxy exploration
+- Real orbit systems
+- Dynamic GitHub data visualization
+- Country-based galaxies
+- Smooth camera transitions
+- Repository planets with language moons
+- Procedural universe generation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Tech Stack
+
+- Next.js
+- React
+- Three.js
+- React Three Fiber
+- GLSL Shaders
+
+## ⚡ Important Fixes
+
+- Stable orbit system
+- Better galaxy population
+- Correct GitHub data mapping
+- Smooth star and planet navigation
+- Camera collision fixes
+- Performance optimization with LOD
+
+## 🎨 Planet Logic
+
+- Planet size = repository size
+- Planet color = main programming language
+- Moons = language percentages
+
+## 🛠️ Status
+
+🚧 In Active Development
+
+## 🤝 Contributions
+
+Good changes, optimizations, and feature improvements are welcome.
+
+---
+
+### 🌠 First Antigravity Project
