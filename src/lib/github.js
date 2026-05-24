@@ -44,9 +44,15 @@ const getHeaders = () => {
 };
 
   export const fetchUserData = async (username) => {
+    // GitHub usernames cannot contain spaces
+    if (username.includes(' ')) {
+      return { notFound: true, message: 'Invalid username format' };
+    }
+    
     try {
       const res = await fetch(`${GITHUB_API}/${username}`, { headers: getHeaders() });
-      if (!res.ok) throw new Error('User not found or rate limit');
+      if (res.status === 404) return { notFound: true, message: 'User does not exist on GitHub' };
+      if (!res.ok) throw new Error('Rate limit');
       const user = await res.json();
       
       let loc = user.location;

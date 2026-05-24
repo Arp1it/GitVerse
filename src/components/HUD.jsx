@@ -6,6 +6,8 @@ import { fetchUserData } from '../lib/github';
 const HUD = ({ onSearch }) => {
   const [searchInput, setSearchInput] = useState('');
   const [userData, setUserData] = useState(null);
+  const [searchError, setSearchError] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   
   const { viewLevel, selectedGalaxy, selectedUser, selectedPlanet, zoomToUniverse, zoomToGalaxy, zoomToSystem, ensureGalaxyExists } = useStore();
 
@@ -19,18 +21,31 @@ const HUD = ({ onSearch }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (searchInput.trim()) {
-      const username = searchInput.trim();
-      setSearchInput('');
-      
-      const uData = await fetchUserData(username);
-      const loc = uData.location || 'Global Network';
-      const targetGalaxy = ensureGalaxyExists(loc);
-      
-      // Explicitly set the galaxy before zooming so the UI breadcrumbs and background stars render correctly
-      useStore.setState({ selectedGalaxy: targetGalaxy.name });
-      zoomToSystem(username, [targetGalaxy.pos[0] + 50, targetGalaxy.pos[1], targetGalaxy.pos[2]], 20);
+    const raw = searchInput.trim();
+    if (!raw) return;
+
+    // Validate: GitHub usernames cannot have spaces
+    if (raw.includes(' ')) {
+      setSearchError('❌ Invalid username — GitHub usernames cannot contain spaces.');
+      return;
     }
+
+    setSearchError('');
+    setIsSearching(true);
+    setSearchInput('');
+
+    const uData = await fetchUserData(raw);
+    setIsSearching(false);
+
+    if (uData.notFound) {
+      setSearchError(`❌ User "${raw}" does not exist on GitHub.`);
+      return;
+    }
+
+    const loc = uData.location || 'Global Network';
+    const targetGalaxy = ensureGalaxyExists(loc);
+    useStore.setState({ selectedGalaxy: targetGalaxy.name });
+    zoomToSystem(raw, [targetGalaxy.pos[0] + 50, targetGalaxy.pos[1], targetGalaxy.pos[2]], 20);
   };
 
   const handleBack = () => {
@@ -70,8 +85,13 @@ const HUD = ({ onSearch }) => {
                 className="search-bar" 
                 placeholder="SEARCH GITHUB USER..." 
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                onChange={(e) => { setSearchInput(e.target.value); setSearchError(''); }}
               />
+              {searchError && (
+                <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, background: 'rgba(20, 5, 5, 0.95)', border: '1px solid #ff4444', borderRadius: '6px', padding: '8px 12px', fontSize: '11px', color: '#ff6666', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', zIndex: 100 }}>
+                  {searchError}
+                </div>
+              )}
               <button 
                 type="submit" 
                 style={{ 
