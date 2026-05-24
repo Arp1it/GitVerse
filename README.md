@@ -227,9 +227,7 @@ Looking for something to work on? Here are some great starting points:
 - [ ] **Followers Network** — Show follower/following connections as gravitational links
 - [ ] **Mobile Support** — Improve touch controls for mobile devices
 - [ ] **Search History** — Remember recently visited developers
-- [ ] **Dark/Light Theme Toggle** — Alternative color schemes
 - [ ] **Performance Mode** — Reduce particle counts for lower-end hardware
-- [ ] **Export View** — Screenshot the current 3D view
 
 ---
 
