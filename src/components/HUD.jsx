@@ -88,7 +88,7 @@ const HUD = ({ onSearch }) => {
                 onChange={(e) => { setSearchInput(e.target.value); setSearchError(''); }}
               />
               {searchError && (
-                <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, background: 'rgba(20, 5, 5, 0.95)', border: '1px solid #ff4444', borderRadius: '6px', padding: '8px 12px', fontSize: '11px', color: '#ff6666', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', zIndex: 100 }}>
+                <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, minWidth: '300px', background: 'rgba(20, 5, 5, 0.95)', border: '1px solid #ff4444', borderRadius: '6px', padding: '8px 12px', fontSize: '11px', color: '#ff6666', fontFamily: 'var(--font-mono)', lineHeight: '1.5', zIndex: 100 }}>
                   {searchError}
                 </div>
               )}
