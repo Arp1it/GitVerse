@@ -106,7 +106,8 @@ const UniverseBase = () => {
           galaxyName: g.name,
           username,
           pos: [g.pos[0] + offset[0], g.pos[1] + offset[1], g.pos[2] + offset[2]],
-          size: 3, // All stars equal size as requested
+          relPos: offset, // relative to galaxy center for rotation
+          size: 3,
           color: new THREE.Color().setHSL(Math.random(), 0.5, 0.8)
         });
       }
@@ -120,11 +121,20 @@ const UniverseBase = () => {
   }, [allStars, selectedGalaxy, viewLevel]);
 
   const instancedMeshRef = useRef();
+  
+  // Get the center of the selected galaxy
+  const galaxyCenter = useMemo(() => {
+    if (!selectedGalaxy) return [0, 0, 0];
+    const g = galaxies.find(g => g.name === selectedGalaxy);
+    return g ? g.pos : [0, 0, 0];
+  }, [selectedGalaxy, galaxies]);
+
   useEffect(() => {
     if (instancedMeshRef.current && visibleStars.length > 0) {
       const dummy = new THREE.Object3D();
       visibleStars.forEach((star, i) => {
-        dummy.position.set(...star.pos);
+        // Use relative position so rotation is around the galaxy center (black hole)
+        dummy.position.set(...star.relPos);
         dummy.scale.set(star.size, star.size, star.size);
         dummy.updateMatrix();
         instancedMeshRef.current.setMatrixAt(i, dummy.matrix);
@@ -184,6 +194,7 @@ const UniverseBase = () => {
         return (
           <group key={`nebula-${i}`} position={g.pos}>
             <GalaxyParticles colorInside={g.cIn} colorOutside={g.cOut} count={Math.floor(8000 * (g.size || 1))} radius={800 * (g.size || 1)} />
+            <BlackHole color={g.cIn} />
             <Html position={[0, 400 * (g.size || 1), 0]} center zIndexRange={[50, 0]} style={{ pointerEvents: 'none' }}>
               <div style={{ color: 'white', fontFamily: 'Orbitron', fontSize: '24px', textShadow: `0 0 15px ${g.cIn}`, pointerEvents: 'none', textTransform: 'uppercase', letterSpacing: '4px' }}>
                 {g.name} Galaxy
@@ -193,22 +204,77 @@ const UniverseBase = () => {
         );
       })}
 
-      {/* Developer Stars: Only renders when in GALAXY view, isolating the user entirely when zooming into a system */}
+      {/* Developer Stars: orbit around galaxy center (black hole) */}
       {visibleStars.length > 0 && viewLevel === 'GALAXY' && (
-        <instancedMesh 
-          dispose={null}
-          frustumCulled={false} 
-          ref={instancedMeshRef} 
-          args={[null, null, 4000]} 
-          count={visibleStars.length} 
+        <GalaxyStars
+          visibleStars={visibleStars}
+          instancedMeshRef={instancedMeshRef}
           onClick={handleInstancedClick}
-          onPointerOver={(e) => document.body.style.cursor = 'pointer'}
-          onPointerOut={(e) => document.body.style.cursor = 'auto'}
-        >
-          <sphereGeometry args={[4, 16, 16]} />
-          <meshBasicMaterial toneMapped={false} />
-        </instancedMesh>
+          center={galaxyCenter}
+        />
       )}
+    </group>
+  );
+};
+
+// BLACK HOLE at galaxy center — flat horizontal static disk
+const BlackHole = ({ color }) => {
+  return (
+    <group>
+      {/* Event horizon */}
+      <mesh>
+        <sphereGeometry args={[60, 64, 64]} />
+        <meshBasicMaterial color="#000000" />
+      </mesh>
+
+      {/* Inner accretion ring — vertical & static */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[88, 20, 32, 128]} />
+        <meshBasicMaterial color={color} transparent opacity={0.95} blending={THREE.AdditiveBlending} />
+      </mesh>
+
+      {/* Outer ring — vertical & static */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[135, 7, 16, 128]} />
+        <meshBasicMaterial color={color} transparent opacity={0.4} blending={THREE.AdditiveBlending} />
+      </mesh>
+
+      {/* Lensing glow */}
+      <mesh>
+        <sphereGeometry args={[78, 32, 32]} />
+        <meshBasicMaterial color={color} transparent opacity={0.07} side={THREE.BackSide} blending={THREE.AdditiveBlending} />
+      </mesh>
+    </group>
+  );
+};
+
+// Galaxy developer stars with slow orbital rotation
+const GalaxyStars = ({ visibleStars, instancedMeshRef, onClick, center }) => {
+  const groupRef = useRef();
+
+  useFrame((state) => {
+    // Rotate the star field around its own center (the black hole position)
+    if (groupRef.current) {
+      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.015;
+    }
+  });
+
+  return (
+    // Position group AT the galaxy center so rotation pivot is the black hole
+    <group ref={groupRef} position={center}>
+      <instancedMesh
+        dispose={null}
+        frustumCulled={false}
+        ref={instancedMeshRef}
+        args={[null, null, 4000]}
+        count={visibleStars.length}
+        onClick={onClick}
+        onPointerOver={() => document.body.style.cursor = 'pointer'}
+        onPointerOut={() => document.body.style.cursor = 'auto'}
+      >
+        <sphereGeometry args={[4, 16, 16]} />
+        <meshBasicMaterial toneMapped={false} />
+      </instancedMesh>
     </group>
   );
 };
