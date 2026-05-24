@@ -235,6 +235,8 @@ Looking for something to work on? Here are some great starting points:
 
 ## 📜 License
 
+This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for full details.
+
 MIT © [Arp1it](https://github.com/Arp1it)
 
 ---
