@@ -106,8 +106,8 @@ const UniverseBase = () => {
           galaxyName: g.name,
           username,
           pos: [g.pos[0] + offset[0], g.pos[1] + offset[1], g.pos[2] + offset[2]],
-          size: fame,
-          color: new THREE.Color().setHSL(Math.random(), 0.5, 0.8 + (fame/10))
+          size: 3, // All stars equal size as requested
+          color: new THREE.Color().setHSL(Math.random(), 0.5, 0.8)
         });
       }
     });
