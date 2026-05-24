@@ -43,6 +43,35 @@ const getHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+// Cache geocode results to avoid duplicate requests
+const geocodeCache = {};
+
+// Resolve any city/state/region string to a country name
+export const resolveCountry = async (locationString) => {
+  if (!locationString) return null;
+
+  const cacheKey = locationString.toLowerCase().trim();
+  if (geocodeCache[cacheKey]) return geocodeCache[cacheKey];
+
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationString)}&format=json&limit=1&addressdetails=1`;
+    const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+    if (!res.ok) throw new Error('Geocode failed');
+    const data = await res.json();
+    if (data && data.length > 0 && data[0].address) {
+      const country = data[0].address.country;
+      if (country) {
+        geocodeCache[cacheKey] = country;
+        return country;
+      }
+    }
+  } catch (e) {
+    // silently fall through to null
+  }
+  return null;
+};
+
+
   export const fetchUserData = async (username) => {
     // GitHub usernames cannot contain spaces
     if (username.includes(' ')) {
@@ -64,6 +93,10 @@ const getHeaders = () => {
           const seed = hashString(username);
           loc = COUNTRY_NAMES[seed % COUNTRY_NAMES.length];
         }
+      } else {
+        // Try to resolve the city/state to a proper country via geocoding
+        const resolved = await resolveCountry(loc);
+        if (resolved) loc = resolved;
       }
       
       return {
