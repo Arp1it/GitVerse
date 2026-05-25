@@ -424,9 +424,17 @@ const Moon = ({ languageData, index, total, planetSize }) => {
   const moonRef = useRef();
   const [hovered, setHovered] = useState(false);
   const size = Math.max(0.8, languageData.percentage * 4.0);
-  const distance = planetSize + size + 4.0 + (index * 5.0);
+
+  // Each moon gets its own orbit radius — guaranteed no overlap
+  // Base = planet surface + moon radius, then each subsequent moon adds its own diameter + a fixed gap
+  const ORBIT_GAP = 3.0;
+  const distance = planetSize + size + ORBIT_GAP + (index * (size * 2 + ORBIT_GAP + 2.5));
+
+  // Stagger each moon on a slightly different Y plane — prevents collision when orbits cross
+  const yOffset = (index % 2 === 0 ? 1 : -1) * (index * 1.2);
+
   const color = getLanguageColor(languageData.language);
-  const speed = 0.02 + (languageData.percentage * 0.05);
+  const speed = 0.06 + (index * 0.015); // slow, distinct speed per orbit
   const angleOffset = (index / total) * Math.PI * 2;
 
   useFrame((state, delta) => {
@@ -434,6 +442,7 @@ const Moon = ({ languageData, index, total, planetSize }) => {
     const currentAngle = angleOffset + t * speed;
     moonRef.current.position.x = Math.cos(currentAngle) * distance;
     moonRef.current.position.z = Math.sin(currentAngle) * distance;
+    moonRef.current.position.y = yOffset;
     easing.damp3(moonRef.current.scale, [1, 1, 1], 2.0, delta);
   });
 
@@ -548,26 +557,40 @@ const Planet = ({ repo, username, index, sunRadius }) => {
 
         {(hovered || (viewLevel === 'PLANET' && selectedPlanet === repo.name)) && (
           <Html position={[size + 5, size + 5, 0]} center zIndexRange={[100, 0]} style={{ pointerEvents: 'auto' }}>
-            <div 
-              onMouseEnter={() => setHovered(true)}
-              onMouseLeave={() => setHovered(false)}
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                zoomToPlanet(repo.name, absolutePos, repoRadius); 
-              }}
-              style={{ background: 'rgba(5, 5, 20, 0.9)', border: `1px solid ${mainColor}`, padding: '20px', borderRadius: '12px', color: 'white', width: '320px', backdropFilter: 'blur(15px)', fontFamily: 'var(--font-mono)', cursor: 'pointer', transition: 'all 0.3s' }}
-            >
-              <h3 style={{ color: mainColor, margin: '0 0 10px 0', fontSize: '18px', textTransform: 'uppercase' }}>{repo.name}</h3>
-              <p style={{ fontSize: '13px', margin: '0 0 15px 0', color: '#ccc', lineHeight: '1.4' }}>{repo.description || 'No description provided.'}</p>
-              <div style={{ display: 'flex', gap: '20px', fontSize: '13px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px' }}>
-                <span>⭐ {repo.stargazers_count}</span><span>🍴 {repo.forks}</span><span>📦 {repo.size} KB</span>
-              </div>
-              {(viewLevel === 'PLANET' && selectedPlanet === repo.name) && (
-                <div style={{ marginTop: '12px', fontSize: '11px', color: '#00ffff', textAlign: 'center', borderTop: '1px solid rgba(0, 255, 255, 0.2)', paddingTop: '8px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  Click Planet to Open GitHub
+            {viewLevel === 'PLANET' && selectedPlanet === repo.name ? (
+              // Small compact card when zoomed in — doesn't block moons
+              <div
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
+                onClick={(e) => { e.stopPropagation(); window.open(`https://github.com/${username}/${repo.name}`, '_blank'); }}
+                style={{ background: 'rgba(5,5,20,0.88)', border: `1px solid ${mainColor}`, padding: '8px 12px', borderRadius: '10px', color: 'white', backdropFilter: 'blur(10px)', fontFamily: 'var(--font-mono)', cursor: 'pointer', whiteSpace: 'nowrap', fontSize: '11px', boxShadow: `0 0 10px ${mainColor}40` }}
+              >
+                <div style={{ color: mainColor, fontWeight: 'bold', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>{repo.name}</div>
+                <div style={{ display: 'flex', gap: '10px', color: '#aaa', fontSize: '10px' }}>
+                  <span>⭐ {repo.stargazers_count}</span>
+                  <span>🍴 {repo.forks}</span>
+                  {repo.language && <span style={{ color: mainColor }}>● {repo.language}</span>}
                 </div>
-              )}
-            </div>
+                <div style={{ fontSize: '9px', color: '#00ffff', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Click to open GitHub</div>
+              </div>
+            ) : (
+              // Full description card on hover from far away
+              <div
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
+                onClick={(e) => { e.stopPropagation(); zoomToPlanet(repo.name, absolutePos, repoRadius); }}
+                style={{ background: 'rgba(5,5,20,0.9)', border: `1px solid ${mainColor}`, padding: '20px', borderRadius: '12px', color: 'white', width: '300px', backdropFilter: 'blur(15px)', fontFamily: 'var(--font-mono)', cursor: 'pointer', transition: 'all 0.3s' }}
+              >
+                <h3 style={{ color: mainColor, margin: '0 0 10px 0', fontSize: '16px', textTransform: 'uppercase' }}>{repo.name}</h3>
+                <p style={{ fontSize: '12px', margin: '0 0 12px 0', color: '#ccc', lineHeight: '1.4' }}>{repo.description || 'No description provided.'}</p>
+                <div style={{ display: 'flex', gap: '16px', fontSize: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px' }}>
+                  <span>⭐ {repo.stargazers_count}</span><span>🍴 {repo.forks}</span><span>📦 {repo.size} KB</span>
+                </div>
+                <div style={{ marginTop: '10px', fontSize: '10px', color: '#00ffff', textAlign: 'center', borderTop: '1px solid rgba(0,255,255,0.15)', paddingTop: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  Click to Zoom In
+                </div>
+              </div>
+            )}
           </Html>
         )}
       </group>
