@@ -167,19 +167,53 @@ export const fetchRepoLanguages = async (username, repo) => {
 // Language to Color Mapping System
 export const getLanguageColor = (language) => {
   const colors = {
-    JavaScript: '#f7df1e', // Glowing yellow
-    TypeScript: '#3178c6', // Deep neon blue
-    Python: '#00f3ff',     // Cyan energy
-    'C++': '#9e9e9e',      // Metallic grey
-    Rust: '#ff5722',       // Volcanic orange
-    Go: '#00add8',         // Smooth turquoise
-    Java: '#f89820',       // Hot red/orange
-    HTML: '#e34f26',       // Orange
-    CSS: '#1572b6',        // Blue
-    Shell: '#4caf50',      // Dark hacker green
-    Ruby: '#cc342d',       // Deep red
-    PHP: '#4F5D95',        // Soft blue
-    Swift: '#F05138',      // Orange red
+    JavaScript:         '#f7df1e', // Glowing yellow
+    TypeScript:         '#3178c6', // Deep neon blue
+    Python:             '#00f3ff', // Cyan energy
+    'C++':              '#9e9e9e', // Metallic grey
+    'C':                '#555555', // Dark grey
+    'C#':               '#178600', // Green
+    Rust:               '#ff5722', // Volcanic orange
+    Go:                 '#00add8', // Smooth turquoise
+    Java:               '#f89820', // Hot red/orange
+    Kotlin:             '#7f52ff', // Purple
+    Swift:              '#F05138', // Orange red
+    HTML:               '#e34f26', // Orange
+    CSS:                '#1572b6', // Blue
+    SCSS:               '#c6538c', // Pink
+    Shell:              '#4caf50', // Dark hacker green
+    Bash:               '#89e051', // Light green
+    Ruby:               '#cc342d', // Deep red
+    PHP:                '#4F5D95', // Soft blue
+    Dart:               '#00B4AB', // Teal
+    Lua:                '#000080', // Navy
+    R:                  '#276DC3', // Blue
+    Scala:              '#c22d40', // Red
+    Haskell:            '#5e5086', // Purple
+    Elixir:             '#6e4a7e', // Purple
+    Clojure:            '#db5855', // Red
+    'Jupyter Notebook': '#DA5B0B', // Orange
+    Vue:                '#41b883', // Green
+    Svelte:             '#ff3e00', // Red-orange
+    Dockerfile:         '#384d54', // Dark teal
+    Makefile:           '#427819', // Olive green
+    Assembly:           '#6E4C13', // Brown
+    GLSL:               '#5686a5', // Muted blue
+    HLSL:               '#aace60', // Yellow-green
+    Zig:                '#ec915c', // Peach
+    Nim:                '#ffc200', // Gold
+    Crystal:            '#000100', // Black (override to avoid invisible)
+    PowerShell:         '#012456', // Dark blue
   };
-  return colors[language] || '#ffffff';
+  // For unrecognised languages — generate a unique vivid hue from the name
+  if (!colors[language]) {
+    let h = 0;
+    for (let i = 0; i < (language || '').length; i++) {
+      h = ((h << 5) - h) + language.charCodeAt(i);
+      h = h & h;
+    }
+    const hue = Math.abs(h) % 360;
+    return `hsl(${hue}, 70%, 50%)`;
+  }
+  return colors[language];
 };
