@@ -212,7 +212,6 @@ Push your branch and open a PR with a clear description of what you changed and 
 
 ## 🐛 Known Issues & Limitations
 
-- **Rate Limits**: Without a GitHub token, you may hit the 60 req/hour limit after ~30 searches. Use a `.env.local` token to fix this.
 - **User Location**: Developers who haven't set a GitHub location are assigned a country procedurally based on their username hash.
 
 ---
