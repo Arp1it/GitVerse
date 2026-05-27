@@ -1008,6 +1008,12 @@ const Moon = ({ languageData, index, total, planetSize, maxOrbitRadius }) => {
     easing.damp3(moonRef.current.scale, [1, 1, 1], 2.0, delta);
   });
 
+  const formatPercent = (p) => {
+    const raw = p * 100;
+    if (raw > 0 && raw < 0.01) return '<0.01';
+    return parseFloat(raw.toFixed(2));
+  };
+
   return (
     <group ref={moonRef} scale={[0.001, 0.001, 0.001]}>
       <mesh
@@ -1034,7 +1040,7 @@ const Moon = ({ languageData, index, total, planetSize, maxOrbitRadius }) => {
             <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: color, boxShadow: `0 0 8px ${color}` }}></div>
             <div>
               <div style={{ fontSize: '13px', fontWeight: 'bold', textTransform: 'uppercase' }}>{languageData.language}</div>
-              <div style={{ fontSize: '11px', color: '#aaa' }}>{Math.round(languageData.percentage * 100)}% Usage</div>
+              <div style={{ fontSize: '11px', color: '#aaa' }}>{formatPercent(languageData.percentage)}% Usage</div>
             </div>
           </div>
         </Html>
