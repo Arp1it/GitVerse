@@ -17,11 +17,14 @@ GitVerse transforms GitHub users and their repositories into an interactive 3D s
 
 - 🌍 **Country Galaxies** — Every country with GitHub users forms its own galaxy
 - ⭐ **Developer Stars** — Each GitHub user is a uniquely colored star inside their native galaxy
-- 🪐 **Repository Planets** — A developer's repos orbit around them as glowing planets
+- ☀️ **Dynamic Suns** — The developer is represented as a sun (size = followers), complete with animated coronas, surface noise shaders, and solar flares
+- 🪐 **Repository Planets** — A developer's repos orbit around them as glowing planets. Planet type (Lava, Rocky, Gas Giant, Ocean, Ice, Alien) is determined procedurally by distance from the sun
 - 🌙 **Language Moons** — Each repo's programming languages orbit as tiny moons (click a planet to reveal)
-- 🚀 **Warp Portal** — A special outer-rim planet that links directly to the developer's GitHub profile
-- 🔍 **Smart Search** — Search any GitHub username and warp directly to their solar system
-- 🎨 **Language Colors** — Every planet and moon glows with the real color of its programming language
+- 🚀 **Warp Portal** — A special outer-rim planet with an asteroid belt that links directly to the developer's GitHub profile
+- 🎨 **Procedural Shaders** — Custom GLSL shaders generate dynamic, animated planet surfaces without heavy textures
+- 🌌 **Cosmic Environment** — Realistic background stars, swirling cosmic dust, nebula wisps, and occasional shooting stars
+- 🎯 **Precision Hitboxes** — Invisible "fat hitboxes" ensure tiny developer stars are easy to click from thousands of units away
+- 🔍 **Smart Location Mapping** — Uses word-boundary regex to intelligently map GitHub location strings to in-game galaxies (e.g. distinguishing "UK" from "Ukraine")
 - 📡 **Live GitHub Data** — Fetches real user info, repos, and language stats from the GitHub API
 
 ---
@@ -140,10 +143,11 @@ App.jsx
         ├── DeveloperStars        ← Instanced mesh of all user stars in a galaxy
         ├── Galaxy (×N)          ← Each country galaxy (particle cloud)
         ├── SolarSystem          ← Active developer's solar system
-        │   ├── Sun              ← The developer (size = follower count)
-        │   ├── Planet (×N)     ← Each repository (color = primary language)
+        │   ├── Sun              ← The developer (Custom GLSL shader, size = followers)
+        │   ├── Planet (×N)     ← Each repository (Procedural GLSL biome, color = primary language)
         │   │   └── Moon (×N)   ← Each language in the repo (on focus)
-        │   └── ProfilePlanet   ← Outer-rim warp portal to GitHub profile
+        │   └── ProfilePlanet   ← Outer-rim warp portal with asteroid belt
+        ├── Ambient FX           ← Shooting stars, Cosmic Dust, Background Stars
         └── HUD.jsx (HTML overlay)
             ├── Search bar
             ├── Breadcrumb navigation
@@ -212,7 +216,6 @@ Push your branch and open a PR with a clear description of what you changed and 
 
 ## 🐛 Known Issues & Limitations
 
-- **Rate Limits**: Without a GitHub token, you may hit the 60 req/hour limit after ~30 searches. Use a `.env.local` token to fix this.
 - **User Location**: Developers who haven't set a GitHub location are assigned a country procedurally based on their username hash.
 
 ---

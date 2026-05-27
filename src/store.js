@@ -217,9 +217,11 @@ export const useStore = create((set, get) => ({
       'dubai': 'United Arab Emirates', 'abu dhabi': 'United Arab Emirates', 'ae': 'United Arab Emirates',
     };
 
-    // 1. Direct keyword match (most reliable)
+    // 1. Direct keyword match (most reliable) - using word boundaries
     for (const [keyword, country] of Object.entries(CITY_TO_COUNTRY)) {
-      if (locLower.includes(keyword)) {
+      const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'i');
+      if (regex.test(locationString)) {
         const galaxy = get().galaxies.find(g => g.name.toLowerCase() === country.toLowerCase());
         if (galaxy) return galaxy;
       }
