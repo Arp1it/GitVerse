@@ -587,7 +587,7 @@ const CameraController = () => {
 
 // --- BASE UNIVERSE: GALAXIES & STARS ---
 const UniverseBase = () => {
-  const { viewLevel, zoomToGalaxy, zoomToSystem, selectedUser, selectedGalaxy, galaxies } = useStore();
+  const { viewLevel, zoomToGalaxy, zoomToSystem, selectedUser, selectedGalaxy, galaxies, ensureGalaxyExists } = useStore();
 
   const [realUsersData, setRealUsersData] = useState({});
 
@@ -687,11 +687,21 @@ const UniverseBase = () => {
     }
   }, [visibleStars]);
 
-  const handleInstancedClick = (e) => {
+  const handleInstancedClick = async (e) => {
     e.stopPropagation();
     if (e.instanceId !== undefined && e.instanceId < visibleStars.length) {
       const star = visibleStars[e.instanceId];
       if (selectedUser !== star.username) {
+        // Fetch the real user data to get their actual location
+        const uData = await fetchUserData(star.username);
+        if (uData && !uData.notFound) {
+          const loc = uData.location || selectedGalaxy;
+          const correctGalaxy = ensureGalaxyExists(loc);
+          if (correctGalaxy && correctGalaxy.name !== selectedGalaxy) {
+            // User belongs in a different galaxy — remap them but still zoom to system
+            useStore.setState({ selectedGalaxy: correctGalaxy.name });
+          }
+        }
         zoomToSystem(star.username, star.pos, star.size * 2);
       }
     }
